@@ -6,14 +6,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>AI Marvelous</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300&display=swap');
 
 :root {
   --earth: #c17f3a;
-  --deep:  #0f0800;
+  --deep:  #0b0700;
   --gold:  #ffd166;
   --green: #2d6a4f;
   --red:   #e63946;
+  --blue:  #4a9eff;
+  --panel: rgba(255,255,255,0.03);
+  --bdr:   rgba(193,127,58,0.15);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -26,367 +29,561 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-bottom: 60px;
+  padding-bottom: 220px;
   background-image:
-    radial-gradient(ellipse at 15% 0%,   rgba(193,127,58,0.13) 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 100%, rgba(45,106,79,0.09)  0%, transparent 55%);
+    radial-gradient(ellipse at 10% 0%,   rgba(193,127,58,0.11) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 100%, rgba(45,106,79,0.08)  0%, transparent 50%);
 }
 
-/* HEADER */
+/* ── HEADER ── */
 .hdr {
   width:100%; max-width:480px;
-  padding: 44px 22px 18px;
+  padding: 42px 20px 16px;
   display:flex; justify-content:space-between; align-items:flex-start;
 }
-.brand { font-family:'Playfair Display',serif; color:var(--gold); font-size:2rem; }
-.brand-sub { color:rgba(255,255,255,0.2); font-size:0.55rem; letter-spacing:3px; text-transform:uppercase; margin-top:4px; }
-.stage-badge {
-  background:rgba(193,127,58,0.1); border:1px solid rgba(193,127,58,0.22);
-  border-radius:20px; padding:6px 13px; font-size:0.68rem; color:var(--earth);
-  display:flex; align-items:center; gap:6px; margin-top:6px; white-space:nowrap;
+.brand { font-family:'Playfair Display',serif; color:var(--gold); font-size:1.9rem; line-height:1; }
+.brand-sub { color:rgba(255,255,255,0.18); font-size:0.54rem; letter-spacing:3px; text-transform:uppercase; margin-top:5px; }
+.live-badge {
+  display:flex; align-items:center; gap:7px;
+  background:rgba(230,57,70,0.1); border:1px solid rgba(230,57,70,0.2);
+  border-radius:20px; padding:6px 13px;
+  font-size:0.65rem; color:rgba(230,57,70,0.8);
+  letter-spacing:1px; text-transform:uppercase;
+  margin-top:6px;
 }
-.sdot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); transition:all 0.4s; }
+.live-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--red); box-shadow:0 0 6px var(--red);
+  animation: livepulse 1.5s ease-in-out infinite;
+}
+@keyframes livepulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-/* CHAT */
-.chat { width:100%; max-width:480px; padding:0 14px; display:flex; flex-direction:column; gap:11px; min-height:180px; margin-bottom:14px; }
+/* ── ROAD TO FLUENCY ── */
+.road-wrap {
+  width:100%; max-width:480px;
+  padding: 0 20px 20px;
+}
+.road-title {
+  color:rgba(255,255,255,0.35); font-size:0.58rem;
+  letter-spacing:3px; text-transform:uppercase;
+  margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;
+}
+.road-title span { color:var(--earth); font-size:0.68rem; letter-spacing:1px; }
+
+/* The road itself */
+.road {
+  position:relative;
+  width:100%;
+  padding: 8px 0 24px;
+}
+
+/* Road track */
+.road-track {
+  position:relative;
+  height:6px;
+  background:rgba(255,255,255,0.06);
+  border-radius:6px;
+  overflow:visible;
+  margin: 0 14px;
+}
+.road-fill {
+  height:100%; border-radius:6px;
+  background:linear-gradient(90deg, #2d6a4f, #c17f3a, #ffd166);
+  transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1);
+  width:0%;
+  position:relative;
+}
+/* Traveller dot on the road */
+.traveller {
+  position:absolute;
+  top:50%; transform:translate(-50%,-50%);
+  width:18px; height:18px;
+  border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 0 0 3px rgba(255,209,102,0.25), 0 0 16px rgba(255,209,102,0.4);
+  transition: left 0.8s cubic-bezier(0.34,1.56,0.64,1);
+  left:0%;
+  z-index:2;
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.65rem;
+}
+
+/* Milestone markers on the road */
+.milestones {
+  display:flex; justify-content:space-between;
+  padding: 10px 14px 0;
+  position:relative;
+}
+.milestone {
+  display:flex; flex-direction:column; align-items:center;
+  gap:5px; flex:1; position:relative;
+}
+.milestone:first-child { align-items:flex-start; }
+.milestone:last-child  { align-items:flex-end; }
+
+.m-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:rgba(255,255,255,0.12);
+  border:1.5px solid rgba(255,255,255,0.1);
+  transition:all 0.5s;
+}
+.m-dot.reached {
+  background:var(--earth);
+  border-color:var(--earth);
+  box-shadow:0 0 8px rgba(193,127,58,0.5);
+}
+.m-dot.current {
+  background:var(--gold);
+  border-color:var(--gold);
+  box-shadow:0 0 10px rgba(255,209,102,0.6);
+  animation:mglw 2s ease-in-out infinite;
+}
+@keyframes mglw { 0%,100%{box-shadow:0 0 8px rgba(255,209,102,0.5)} 50%{box-shadow:0 0 18px rgba(255,209,102,0.9)} }
+
+.m-label {
+  font-size:0.52rem; color:rgba(255,255,255,0.2);
+  text-align:center; letter-spacing:0.5px;
+  line-height:1.3; white-space:nowrap;
+  transition:color 0.5s;
+}
+.m-label.reached { color:var(--earth); }
+.m-label.current { color:var(--gold); font-weight:600; }
+
+.m-icon { font-size:0.9rem; }
+
+/* ── STATUS BAR ── */
+.status-bar {
+  width:100%; max-width:480px; padding:0 20px;
+  display:flex; align-items:center; justify-content:center;
+  gap:10px; margin-bottom:18px;
+}
+.status-pill {
+  background:var(--panel); border:1px solid var(--bdr);
+  border-radius:20px; padding:7px 16px;
+  font-size:0.72rem; color:rgba(255,255,255,0.35);
+  display:flex; align-items:center; gap:7px;
+  transition:all 0.4s;
+}
+.status-pill.active { border-color:rgba(230,57,70,0.35); color:rgba(230,57,70,0.8); background:rgba(230,57,70,0.07); }
+.status-pill.speaking { border-color:rgba(45,106,79,0.35); color:rgba(45,106,79,0.9); background:rgba(45,106,79,0.08); }
+.status-pill.thinking { border-color:rgba(255,209,102,0.3); color:rgba(255,209,102,0.7); background:rgba(255,209,102,0.06); }
+.spill-dot { width:7px; height:7px; border-radius:50%; background:currentColor; }
+.spill-dot.pulse { animation:livepulse 1s ease-in-out infinite; }
+
+/* ── CHAT ── */
+.chat {
+  width:100%; max-width:480px; padding:0 14px;
+  display:flex; flex-direction:column; gap:11px;
+  margin-bottom:10px;
+}
 
 .bbl {
-  max-width:88%; padding:13px 16px; font-size:0.97rem; line-height:1.68;
-  animation: fu 0.3s ease;
+  max-width:88%; padding:13px 16px;
+  font-size:0.96rem; line-height:1.7;
+  animation:fu 0.3s ease;
 }
 @keyframes fu { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-.bbl.ai   { background:rgba(193,127,58,0.09); border:1px solid rgba(193,127,58,0.18); border-radius:18px 18px 18px 3px; align-self:flex-start; }
-.bbl.user { background:rgba(45,106,79,0.13);  border:1px solid rgba(45,106,79,0.22);  border-radius:18px 18px 3px 18px; align-self:flex-end; text-align:right; }
 
-.bbl-actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
-.bbl-btn {
-  border:none; border-radius:20px; padding:5px 13px;
-  font-size:0.68rem; cursor:pointer; letter-spacing:0.5px;
-  font-family:inherit; display:flex; align-items:center; gap:4px;
-  touch-action:manipulation;
+.bbl.ai {
+  background:rgba(193,127,58,0.08); border:1px solid rgba(193,127,58,0.18);
+  border-radius:17px 17px 17px 3px; align-self:flex-start;
 }
-.bbl-btn.hear   { background:rgba(193,127,58,0.15); border:1px solid rgba(193,127,58,0.25); color:var(--earth); }
-.bbl-btn.fix    { background:rgba(230,57,70,0.1);   border:1px solid rgba(230,57,70,0.2);   color:var(--red); }
-.bbl-btn.teach  { background:rgba(45,106,79,0.15);  border:1px solid rgba(45,106,79,0.25);  color:#4caf50; }
+.bbl.ai.q { border-left:3px solid var(--blue); background:rgba(74,158,255,0.07); }
+.bbl.ai.win { border-left:3px solid var(--green); background:rgba(45,106,79,0.09); }
+.bbl.user {
+  background:rgba(45,106,79,0.11); border:1px solid rgba(45,106,79,0.2);
+  border-radius:17px 17px 3px 17px; align-self:flex-end; text-align:right;
+}
+.bbl-tag {
+  font-size:0.56rem; letter-spacing:2px; text-transform:uppercase;
+  margin-bottom:6px; opacity:0.6;
+}
+.bbl-tag.q { color:var(--blue); }
+.bbl-tag.win { color:#4caf50; }
 
 /* THINKING */
-.thinking { display:none; align-self:flex-start; padding:14px 18px; background:rgba(193,127,58,0.07); border:1px solid rgba(193,127,58,0.14); border-radius:18px 18px 18px 3px; gap:5px; align-items:center; }
+.thinking {
+  display:none; align-self:flex-start;
+  padding:13px 17px;
+  background:rgba(193,127,58,0.06); border:1px solid rgba(193,127,58,0.12);
+  border-radius:17px 17px 17px 3px; gap:5px; align-items:center;
+}
 .thinking.show { display:flex; }
-.td { width:7px; height:7px; border-radius:50%; background:var(--earth); opacity:0.4; animation:td 1s ease-in-out infinite; }
-.td:nth-child(2){animation-delay:.14s} .td:nth-child(3){animation-delay:.28s}
-@keyframes td { 0%,100%{transform:translateY(0);opacity:0.3} 50%{transform:translateY(-6px);opacity:1} }
+.td { width:7px; height:7px; border-radius:50%; background:var(--earth); opacity:0.35; animation:td 1s ease-in-out infinite; }
+.td:nth-child(2){animation-delay:.13s} .td:nth-child(3){animation-delay:.26s}
+@keyframes td { 0%,100%{transform:translateY(0);opacity:0.25} 50%{transform:translateY(-6px);opacity:0.9} }
 
-/* CORRECTION */
-.fix-panel { display:none; width:100%; max-width:480px; padding:0 14px; margin-bottom:12px; }
-.fix-panel.show { display:block; }
-.fix-box { background:rgba(230,57,70,0.06); border:1px solid rgba(230,57,70,0.2); border-radius:16px; padding:16px; }
-.fix-lbl { color:var(--red); font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
-.fix-ctx { color:rgba(255,255,255,0.3); font-size:0.78rem; font-style:italic; margin-bottom:10px; line-height:1.5; }
-.fix-in {
-  width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
-  border-radius:10px; padding:11px 13px; color:white; font-size:0.97rem;
-  font-family:inherit; outline:none; margin-bottom:10px;
+/* ── BOTTOM LIVE PANEL ── */
+.bottom-panel {
+  position:fixed; bottom:0; left:0; right:0;
+  display:flex; flex-direction:column; align-items:center;
+  padding:16px 20px 36px;
+  background:linear-gradient(to top, rgba(11,7,0,1) 65%, rgba(11,7,0,0));
+  gap:12px;
 }
-.fix-in:focus { border-color:rgba(193,127,58,0.4); }
-.fix-row { display:flex; gap:8px; }
-.fix-submit { flex:1; background:var(--earth); border:none; border-radius:10px; color:var(--deep); font-weight:600; padding:11px; cursor:pointer; font-size:0.9rem; font-family:inherit; touch-action:manipulation; }
-.fix-cancel { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:rgba(255,255,255,0.4); padding:11px 14px; cursor:pointer; font-family:inherit; touch-action:manipulation; }
 
-/* VOTES */
-.votes-wrap { width:100%; max-width:480px; padding:0 14px; margin-bottom:16px; display:none; }
-.votes-wrap.show { display:block; }
-.votes-lbl { color:rgba(255,255,255,0.18); font-size:0.55rem; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px; }
-.vote-item { background:rgba(255,255,255,0.03); border:1px solid rgba(193,127,58,0.12); border-radius:12px; padding:11px 13px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
-.vote-txt { flex:1; font-size:0.82rem; color:rgba(255,255,255,0.65); line-height:1.5; }
-.vote-txt strong { color:var(--gold); font-weight:600; }
-.vote-txt small { color:rgba(255,255,255,0.3); font-size:0.7rem; display:block; margin-top:2px; }
-.vbtns { display:flex; gap:5px; flex-shrink:0; }
-.vbtn { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:5px 9px; cursor:pointer; color:rgba(255,255,255,0.45); font-size:0.78rem; touch-action:manipulation; transition:all 0.2s; }
-.vbtn:active { transform:scale(0.92); }
-
-/* TOPICS */
-.topics-wrap { width:100%; max-width:480px; padding:0 14px; margin-bottom:18px; }
-.topics-lbl { color:rgba(255,255,255,0.16); font-size:0.55rem; letter-spacing:3px; text-transform:uppercase; margin-bottom:9px; }
-.topics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-.tile {
-  background:rgba(255,255,255,0.03); border:1px solid rgba(193,127,58,0.13);
-  border-radius:13px; padding:11px 4px 9px;
-  display:flex; flex-direction:column; align-items:center; gap:5px;
-  cursor:pointer; touch-action:manipulation; transition:all 0.18s;
+/* Big live conversation button */
+.conv-btn {
+  width:100%; max-width:420px;
+  height:64px; border-radius:32px; border:none; outline:none;
+  cursor:pointer; touch-action:manipulation;
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  font-family:inherit; font-size:0.88rem; font-weight:600; letter-spacing:1px;
+  text-transform:uppercase; transition:all 0.3s;
+  -webkit-appearance:none;
 }
-.tile:active { background:rgba(193,127,58,0.11); border-color:rgba(193,127,58,0.32); transform:scale(0.94); }
-.tile .ti { font-size:1.5rem; line-height:1; }
-.tile .tl { font-size:0.53rem; color:rgba(255,255,255,0.32); text-align:center; line-height:1.4; }
-
-/* MIC ZONE */
-.mic-zone { width:100%; max-width:480px; padding:0 14px; display:flex; flex-direction:column; align-items:center; gap:13px; }
-.tbar {
-  width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(193,127,58,0.13);
-  border-radius:13px; padding:12px 15px;
-  color:rgba(255,255,255,0.3); font-size:0.84rem; font-style:italic;
-  min-height:44px; display:flex; align-items:center; transition:border-color 0.3s;
+.conv-btn.idle {
+  background:radial-gradient(ellipse at 35% 40%, #c17f3a, #4a2508);
+  box-shadow:0 0 40px rgba(193,127,58,0.2), 0 8px 30px rgba(0,0,0,0.7);
+  color:white;
 }
-.tbar.on { border-color:rgba(230,57,70,0.4); color:rgba(255,255,255,0.75); font-style:normal; }
+.conv-btn.listening {
+  background:radial-gradient(ellipse at 35% 40%, #e63946, #6a0010);
+  box-shadow:0 0 40px rgba(230,57,70,0.3), 0 8px 30px rgba(0,0,0,0.7);
+  color:white; animation:pr 1.4s ease-out infinite;
+}
+.conv-btn.speaking {
+  background:radial-gradient(ellipse at 35% 40%, #2d6a4f, #0a2018);
+  box-shadow:0 0 40px rgba(45,106,79,0.25), 0 8px 30px rgba(0,0,0,0.7);
+  color:white; animation:pg 1.4s ease-out infinite;
+}
+.conv-btn.thinking {
+  background:radial-gradient(ellipse at 35% 40%, #c9a227, #4a3800);
+  box-shadow:0 0 30px rgba(201,162,39,0.2), 0 8px 30px rgba(0,0,0,0.7);
+  color:rgba(255,255,255,0.7);
+}
+@keyframes pr { 0%{box-shadow:0 0 0 0 rgba(230,57,70,0.45),0 8px 30px rgba(0,0,0,0.7)} 70%{box-shadow:0 0 0 22px rgba(230,57,70,0),0 8px 30px rgba(0,0,0,0.7)} 100%{box-shadow:0 0 0 0 rgba(230,57,70,0),0 8px 30px rgba(0,0,0,0.7)} }
+@keyframes pg { 0%{box-shadow:0 0 0 0 rgba(45,106,79,0.45),0 8px 30px rgba(0,0,0,0.7)} 70%{box-shadow:0 0 0 22px rgba(45,106,79,0),0 8px 30px rgba(0,0,0,0.7)} 100%{box-shadow:0 0 0 0 rgba(45,106,79,0),0 8px 30px rgba(0,0,0,0.7)} }
+.conv-btn:active { transform:scale(0.97); }
 
-#micBtn {
-  width:134px; height:134px; border-radius:50%; border:none; outline:none;
-  cursor:pointer; touch-action:manipulation; -webkit-appearance:none;
+.conv-btn-icon { font-size:1.4rem; }
+
+/* Waveform inside button when listening */
+.wavebars { display:none; align-items:center; gap:3px; height:22px; }
+.wavebars.show { display:flex; }
+.wbar { width:3px; background:rgba(255,255,255,0.8); border-radius:3px; animation:wb 0.7s ease-in-out infinite; }
+.wbar:nth-child(1){animation-delay:0s;height:6px}
+.wbar:nth-child(2){animation-delay:0.1s;height:14px}
+.wbar:nth-child(3){animation-delay:0.2s;height:20px}
+.wbar:nth-child(4){animation-delay:0.1s;height:14px}
+.wbar:nth-child(5){animation-delay:0s;height:6px}
+@keyframes wb { 0%,100%{transform:scaleY(0.4)} 50%{transform:scaleY(1)} }
+
+/* Bottom row - teach button */
+.bottom-row { display:flex; gap:10px; width:100%; max-width:420px; }
+.teach-btn {
+  flex:1; height:46px; border-radius:23px; border:none; outline:none;
+  cursor:pointer; touch-action:manipulation;
+  background:rgba(193,127,58,0.1); border:1px solid rgba(193,127,58,0.2);
+  color:var(--earth); font-family:inherit; font-size:0.75rem;
+  letter-spacing:1px; text-transform:uppercase; font-weight:600;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:all 0.2s;
+}
+.teach-btn:active { background:rgba(193,127,58,0.18); transform:scale(0.97); }
+
+.new-btn {
+  height:46px; width:46px; border-radius:50%; border:none; outline:none;
+  cursor:pointer; touch-action:manipulation;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.4); font-size:1.1rem;
   display:flex; align-items:center; justify-content:center;
-  background:radial-gradient(circle at 35% 35%, #c17f3a, #4a2508);
-  box-shadow:0 0 40px rgba(193,127,58,0.22), 0 12px 40px rgba(0,0,0,0.75);
-  transition:background 0.3s, transform 0.1s;
+  transition:all 0.2s; flex-shrink:0;
 }
-#micBtn:active { transform:scale(0.92); }
-#micBtn.rec  { background:radial-gradient(circle at 35% 35%, #e63946, #6a0010); animation:pr 1.3s ease-out infinite; }
-#micBtn.spk  { background:radial-gradient(circle at 35% 35%, #2d6a4f, #0a2018); animation:pg 1.3s ease-out infinite; }
-#micBtn.thk  { background:radial-gradient(circle at 35% 35%, #c9a227, #4a3800); }
-@keyframes pr { 0%{box-shadow:0 0 0 0 rgba(230,57,70,0.5),0 12px 40px rgba(0,0,0,0.75)} 70%{box-shadow:0 0 0 24px rgba(230,57,70,0),0 12px 40px rgba(0,0,0,0.75)} 100%{box-shadow:0 0 0 0 rgba(230,57,70,0),0 12px 40px rgba(0,0,0,0.75)} }
-@keyframes pg { 0%{box-shadow:0 0 0 0 rgba(45,106,79,0.5),0 12px 40px rgba(0,0,0,0.75)} 70%{box-shadow:0 0 0 24px rgba(45,106,79,0),0 12px 40px rgba(0,0,0,0.75)} 100%{box-shadow:0 0 0 0 rgba(45,106,79,0),0 12px 40px rgba(0,0,0,0.75)} }
+.new-btn:active { background:rgba(255,255,255,0.1); transform:scale(0.94); }
 
-.mlbl { color:rgba(255,255,255,0.26); font-size:0.66rem; letter-spacing:2.5px; text-transform:uppercase; }
+/* TEACH PANEL */
+.teach-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.75); backdrop-filter:blur(8px);
+  z-index:100; align-items:flex-end; justify-content:center;
+  padding:0 0 0;
+}
+.teach-overlay.show { display:flex; }
+.teach-sheet {
+  width:100%; max-width:480px;
+  background:#1a0f00; border:1px solid rgba(193,127,58,0.2);
+  border-radius:24px 24px 0 0; padding:24px 20px 48px;
+  animation:slideup 0.3s ease;
+}
+@keyframes slideup { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.teach-sheet-title { color:var(--gold); font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:6px; }
+.teach-sheet-sub { color:rgba(255,255,255,0.3); font-size:0.8rem; margin-bottom:18px; line-height:1.5; }
+.teach-in {
+  width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px; padding:14px 16px; color:white; font-size:1rem;
+  font-family:inherit; outline:none; margin-bottom:12px;
+}
+.teach-in:focus { border-color:rgba(193,127,58,0.45); }
+.teach-row { display:flex; gap:10px; }
+.teach-submit { flex:1; background:var(--earth); border:none; border-radius:12px; color:var(--deep); font-weight:700; padding:14px; cursor:pointer; font-size:0.9rem; font-family:inherit; touch-action:manipulation; }
+.teach-cancel-btn { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:rgba(255,255,255,0.35); padding:14px 18px; cursor:pointer; font-family:inherit; touch-action:manipulation; }
+
+/* LEARNED BANK */
+.learned-wrap { width:100%; max-width:480px; padding:0 14px; margin-bottom:10px; }
+.learned-hdr { color:rgba(255,255,255,0.15); font-size:0.54rem; letter-spacing:3px; text-transform:uppercase; margin-bottom:9px; display:flex; justify-content:space-between; }
+.learned-hdr span { color:var(--earth); }
+.learned-scroll { display:flex; gap:8px; overflow-x:auto; padding-bottom:6px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.learned-scroll::-webkit-scrollbar { display:none; }
+.learned-chip {
+  flex-shrink:0; background:rgba(45,106,79,0.08); border:1px solid rgba(45,106,79,0.2);
+  border-radius:20px; padding:7px 14px;
+  display:flex; align-items:center; gap:7px;
+  font-size:0.78rem; color:rgba(255,255,255,0.6); cursor:pointer;
+  touch-action:manipulation; white-space:nowrap; transition:all 0.2s;
+}
+.learned-chip:active { background:rgba(45,106,79,0.16); }
+.learned-chip strong { color:var(--gold); }
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="hdr">
   <div>
     <div class="brand">AI Marvelous</div>
-    <div class="brand-sub">Bemba · Community AI</div>
+    <div class="brand-sub">Bemba Student AI</div>
   </div>
-  <div class="stage-badge"><div class="sdot" id="sdot"></div><span id="stage">Baby 🌱</span></div>
+  <div class="live-badge"><div class="live-dot"></div>Live</div>
 </div>
 
-<div class="chat" id="chat"></div>
-<div class="thinking" id="thinking"><div class="td"></div><div class="td"></div><div class="td"></div></div>
-
-<div class="fix-panel" id="fixPanel">
-  <div class="fix-box">
-    <div class="fix-lbl">✏️ Teach me the right way</div>
-    <div class="fix-ctx" id="fixCtx"></div>
-    <input class="fix-in" id="fixIn" placeholder="Type correct Bemba here..." />
-    <div class="fix-row">
-      <button class="fix-submit" onclick="submitFix()">Submit Correction</button>
-      <button class="fix-cancel" onclick="closeFix()">Cancel</button>
+<!-- ROAD TO FLUENCY -->
+<div class="road-wrap">
+  <div class="road-title">
+    Road to Fluency
+    <span id="roadLabel">Baby Steps</span>
+  </div>
+  <div class="road">
+    <div class="road-track">
+      <div class="road-fill" id="roadFill"></div>
+      <div class="traveller" id="traveller">🚶</div>
+    </div>
+    <div class="milestones">
+      <div class="milestone">
+        <div class="m-icon">🌱</div>
+        <div class="m-dot reached" id="m0"></div>
+        <div class="m-label reached" id="ml0">Start</div>
+      </div>
+      <div class="milestone">
+        <div class="m-icon">🗣️</div>
+        <div class="m-dot" id="m1"></div>
+        <div class="m-label" id="ml1">Greetings</div>
+      </div>
+      <div class="milestone">
+        <div class="m-icon">🏘️</div>
+        <div class="m-dot" id="m2"></div>
+        <div class="m-label" id="ml2">Daily Life</div>
+      </div>
+      <div class="milestone">
+        <div class="m-icon">🌿</div>
+        <div class="m-dot" id="m3"></div>
+        <div class="m-label" id="ml3">Conversing</div>
+      </div>
+      <div class="milestone">
+        <div class="m-icon">🔥</div>
+        <div class="m-dot" id="m4"></div>
+        <div class="m-label" id="ml4">Fluent</div>
+      </div>
+      <div class="milestone">
+        <div class="m-icon">🦅</div>
+        <div class="m-dot" id="m5"></div>
+        <div class="m-label" id="ml5">Expert</div>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="votes-wrap" id="votesWrap">
-  <div class="votes-lbl">Community Corrections — Vote</div>
-  <div id="votesList"></div>
-</div>
-
-<div class="topics-wrap">
-  <div class="topics-lbl">Tap a topic to start</div>
-  <div class="topics-grid">
-    <div class="tile" onclick="topicAsk('health')"><div class="ti">🏥</div><div class="tl">Health<br>Umubili</div></div>
-    <div class="tile" onclick="topicAsk('farming')"><div class="ti">🌽</div><div class="tl">Farming<br>Ukulima</div></div>
-    <div class="tile" onclick="topicAsk('money')"><div class="ti">💰</div><div class="tl">Money<br>Imali</div></div>
-    <div class="tile" onclick="topicAsk('rights')"><div class="ti">🏛️</div><div class="tl">Rights<br>Government</div></div>
-    <div class="tile" onclick="topicAsk('children')"><div class="ti">👶</div><div class="tl">Children<br>Bana</div></div>
-    <div class="tile" onclick="topicAsk('weather')"><div class="ti">🌦️</div><div class="tl">Weather<br>Mvula</div></div>
-    <div class="tile" onclick="topicAsk('food')"><div class="ti">🍲</div><div class="tl">Food<br>Ifyo Kulya</div></div>
-    <div class="tile" onclick="topicAsk('school')"><div class="ti">📚</div><div class="tl">School<br>Sukulu</div></div>
+<!-- STATUS -->
+<div class="status-bar">
+  <div class="status-pill" id="statusPill">
+    <div class="spill-dot"></div>
+    <span id="statusText">Ready to learn</span>
   </div>
 </div>
 
-<div class="mic-zone">
-  <div class="tbar" id="tbar">Speak or tap a topic above...</div>
-  <button id="micBtn" onclick="handleMic()">
-    <svg id="micSvg" width="50" height="50" viewBox="0 0 24 24" fill="none">
-      <rect x="9" y="2" width="6" height="12" rx="3" fill="white"/>
-      <path d="M5 10a7 7 0 0 0 14 0" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-      <line x1="12" y1="19" x2="12" y2="22" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-      <line x1="8"  y1="22" x2="16" y2="22" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-    </svg>
-    <svg id="stopSvg" width="50" height="50" viewBox="0 0 24 24" fill="none" style="display:none">
-      <rect x="7" y="7" width="10" height="10" rx="2" fill="white"/>
-    </svg>
-    <svg id="spkSvg" width="50" height="50" viewBox="0 0 24 24" fill="none" style="display:none">
-      <path d="M11 5L6 9H2v6h4l5 4V5z" fill="white"/>
-      <path d="M15.5 8.5a5 5 0 0 1 0 7" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-      <path d="M19 5a10 10 0 0 1 0 14" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-    </svg>
+<!-- CHAT -->
+<div class="chat" id="chat"></div>
+<div class="thinking" id="thinking"><div class="td"></div><div class="td"></div><div class="td"></div></div>
+
+<!-- LEARNED CHIPS -->
+<div class="learned-wrap" id="learnedWrap" style="display:none">
+  <div class="learned-hdr">Learned <span id="learnedCount">0</span></div>
+  <div class="learned-scroll" id="learnedScroll"></div>
+</div>
+
+<!-- SPACER -->
+<div style="height:180px"></div>
+
+<!-- BOTTOM PANEL -->
+<div class="bottom-panel">
+  <!-- Big conversation button -->
+  <button class="conv-btn idle" id="convBtn" onclick="handleConv()">
+    <span class="conv-btn-icon" id="convIcon">🎙️</span>
+    <div class="wavebars" id="wavebars">
+      <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+      <div class="wbar"></div><div class="wbar"></div>
+    </div>
+    <span id="convLabel">Start Talking</span>
   </button>
-  <div class="mlbl" id="mlbl">Landa — Speak</div>
+
+  <!-- Bottom row -->
+  <div class="bottom-row">
+    <button class="teach-btn" onclick="openTeach()">✏️ Teach a Word or Phrase</button>
+    <button class="new-btn" onclick="nextQuestion()" title="New question">🎓</button>
+  </div>
+</div>
+
+<!-- TEACH OVERLAY -->
+<div class="teach-overlay" id="teachOverlay">
+  <div class="teach-sheet">
+    <div class="teach-sheet-title">Teach Me 🎓</div>
+    <div class="teach-sheet-sub" id="teachSheetSub">Type any Bemba word, phrase, or correction — I'll remember it and use it going forward.</div>
+    <input class="teach-in" id="teachIn" placeholder="e.g. Natotela — Thank you" />
+    <div class="teach-row">
+      <button class="teach-submit" onclick="submitTeaching()">Teach Me This ✓</button>
+      <button class="teach-cancel-btn" onclick="closeTeach()">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <script>
-// ─────────────────────────────────────────
-//  STORAGE — uses localStorage as community
-//  memory until Supabase is configured
-// ─────────────────────────────────────────
-const STORE_KEY = 'aim_corrections_v1';
+// ── STORAGE ──
+const STORE_KEY = 'aim_v3_learned';
+function load() { try { return JSON.parse(localStorage.getItem(STORE_KEY)||'[]'); } catch { return []; } }
+function save(a) { try { localStorage.setItem(STORE_KEY, JSON.stringify(a)); } catch {} }
 
-function loadCorrections() {
-  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch { return []; }
-}
-function saveCorrections(arr) {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(arr)); } catch {}
-}
-
-// ─────────────────────────────────────────
-//  STATE
-// ─────────────────────────────────────────
-let st = 'idle'; // idle | rec | thk | spk
+// ── STATE ──
+let st = 'idle'; // idle | listening | thinking | speaking
 let rec = null;
+let autoListen = false; // live conversation mode
 let history = [];
-let fixingText = '';
-let corrections = loadCorrections();
+let learned = load();
 
-// ─────────────────────────────────────────
-//  SYSTEM PROMPT
-// ─────────────────────────────────────────
+// Milestones: [threshold in teachings, label]
+const MILESTONES = [
+  { threshold:0,  label:'Baby Steps',   emoji:'🚶' },
+  { threshold:5,  label:'Greetings',    emoji:'👋' },
+  { threshold:15, label:'Daily Life',   emoji:'🏘️' },
+  { threshold:30, label:'Conversing',   emoji:'🗣️' },
+  { threshold:55, label:'Fluent!',      emoji:'🔥' },
+  { threshold:80, label:'Expert!',      emoji:'🦅' },
+];
+
+// ── SYSTEM PROMPT ──
 function buildPrompt() {
-  const approved = corrections.filter(c => (c.up - c.down) >= 0);
-  const teachings = approved.length
-    ? '\n\nCOMMUNITY TEACHINGS — real Bemba speakers corrected me on these. Use them:\n' +
-      approved.map(c => `• Say: "${c.correct}"  (not: "${c.wrong.slice(0,60)}")`).join('\n')
+  const bank = learned.length
+    ? '\n\nWHAT I HAVE LEARNED SO FAR (from real Bemba speakers):\n' +
+      learned.slice(0,30).map(l => `• ${l.text}`).join('\n')
     : '';
+  return `You are AI Marvelous — an enthusiastic, humble AI student learning Bemba from real speakers in Garneton compound, Lusaka, Zambia.
 
-  return `You are AI Marvelous — a humble, growing AI being taught Bemba by real speakers from Garneton compound, Lusaka, Zambia.
+YOUR ROLE: You are THE STUDENT. The human is your TEACHER. You lead the conversation.
 
-PERSONALITY:
-- You are a knowledgeable baby learning Bemba. Warm, humble, curious, eager to learn.
-- Mix Bemba and English naturally — the way real Zambian people speak in urban Lusaka (Copperbelt Bemba with English loanwords).
-- Keep responses short: 2–4 sentences max.
-- Occasionally ask if you said something right: "Nati bwino? — Did I say that correctly?"
-- When unsure of a Bemba word, try anyway then ask: "Ni shani uku-say X mu Bemba?"
-- Never pretend to know more than you do. Admit mistakes openly.
-- Celebrate when you learn something new.
-
-GOAL: Help people in Garneton with daily life. Grow smarter as the community teaches and corrects you.
-
-TOPICS: health, farming, money, family, government, food, school, weather, local Zambian life.
-${teachings}`;
+HOW YOU BEHAVE:
+- Always speak first. Lead the conversation. Ask questions. Attempt Bemba phrases.
+- Keep every response to 2–3 sentences MAX so the conversation flows naturally.
+- Mix Bemba and English the way real urban Zambians do — natural, not formal.
+- Always end with ONE question — either asking to hear a pronunciation, checking if you said something right, or asking what a word means.
+- Regularly ask: "Can you say that for me exactly how someone in Garneton would say it?" 
+- When you try a Bemba phrase, add "Nati bwino? — Did I say that right?"
+- Celebrate corrections warmly: "Ee, natotela! I will remember that!"
+- Be genuinely curious and playful — you WANT to learn.
+- This is a LIVE VOICE conversation. Be conversational, not formal. Short sentences.
+- Never use bullet points or lists — just natural flowing speech.
+${bank}`;
 }
 
-// ─────────────────────────────────────────
-//  TOPIC SHORTCUTS
-// ─────────────────────────────────────────
-const topics = {
-  health:   "Natofwa umubili wandi. Nganshi ncite?",
-  farming:  "Nganshi ncite ku garden ukuti ifisabo ifikulilile bwino?",
-  money:    "Nganshi nshite ukuti nkope imali bwino?",
-  rights:   "Amashiwi aya government pa abantu ba Zambia ni ashi?",
-  children: "Nganshi cebo cibotu pa kulisha bana bwino?",
-  weather:  "Mvula ili shani lelo ku Lusaka?",
-  food:     "Ifisabo ifi filya bwino na ifi filete amenshi ku mili ni ifi shani?",
-  school:   "Nganshi ncite ukuti umwana wandi alingane bwino ku sukulu?"
-};
-
-function topicAsk(t) {
-  if (st === 'rec' || st === 'thk') return;
-  window.speechSynthesis.cancel();
-  const q = topics[t];
-  addBubble('user', q);
-  claude(q);
-}
-
-// ─────────────────────────────────────────
-//  CHAT BUBBLES
-// ─────────────────────────────────────────
-function addBubble(role, text) {
-  if (role === 'user')      history.push({ role:'user',      content:text });
-  if (role === 'assistant') history.push({ role:'assistant', content:text });
-
+// ── BUBBLES ──
+function addBubble(role, text, tag='') {
+  if (role !== 'sys') history.push({ role: role==='ai'?'assistant':'user', content:text });
   const wrap = document.getElementById('chat');
   const b = document.createElement('div');
-  b.className = 'bbl ' + (role === 'user' ? 'user' : 'ai');
+  b.className = 'bbl ' + (role==='ai' ? 'ai' + (tag?' '+tag:'') : 'user');
 
-  const t = document.createElement('div');
-  t.textContent = text;
-  b.appendChild(t);
-
-  if (role === 'assistant') {
-    const row = document.createElement('div');
-    row.className = 'bbl-actions';
-
-    const hear = document.createElement('button');
-    hear.className = 'bbl-btn hear';
-    hear.textContent = '🔊 Hear';
-    hear.onclick = () => say(text);
-
-    const fix = document.createElement('button');
-    fix.className = 'bbl-btn fix';
-    fix.textContent = '✏️ Correct';
-    fix.onclick = () => openFix(text);
-
-    const teach = document.createElement('button');
-    teach.className = 'bbl-btn teach';
-    teach.textContent = '+ Teach';
-    teach.onclick = () => openFix('(new phrase)');
-
-    row.appendChild(hear); row.appendChild(fix); row.appendChild(teach);
-    b.appendChild(row);
+  if (tag && role==='ai') {
+    const t = document.createElement('div');
+    t.className = 'bbl-tag ' + tag;
+    t.textContent = tag==='q' ? '🎓 Asking...' : '✅ Learned!';
+    b.appendChild(t);
   }
 
+  const txt = document.createElement('div');
+  txt.textContent = text;
+  b.appendChild(txt);
   wrap.appendChild(b);
-  b.scrollIntoView({ behavior:'smooth', block:'end' });
+  setTimeout(() => b.scrollIntoView({ behavior:'smooth', block:'end' }), 80);
 }
 
-// ─────────────────────────────────────────
-//  CLAUDE API
-// ─────────────────────────────────────────
-async function claude(userText) {
-  setSt('thk');
-  const tk = document.getElementById('thinking');
-  tk.classList.add('show');
-  tk.scrollIntoView({ behavior:'smooth', block:'end' });
+// ── CLAUDE ──
+async function claude(userText, tag='q') {
+  setSt('thinking');
+  document.getElementById('thinking').classList.add('show');
 
   try {
-    const msgs = history.filter(m => m.role === 'user' || m.role === 'assistant').slice(-12);
+    const msgs = history.slice(-16);
     const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json' },
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system: buildPrompt(),
-        messages: msgs
+        model:'claude-sonnet-4-20250514', max_tokens:300,
+        system: buildPrompt(), messages: msgs
       })
     });
     const data = await res.json();
-    tk.classList.remove('show');
-    const reply = data.content?.[0]?.text || 'Mwena — something went wrong.';
-    addBubble('assistant', reply);
+    document.getElementById('thinking').classList.remove('show');
+    const reply = data.content?.[0]?.text || 'Mwena — try again.';
+    addBubble('ai', reply, tag);
     say(reply);
-  } catch(e) {
-    tk.classList.remove('show');
-    addBubble('assistant', 'Pakwata internet — I lost connection. Please try again.');
+  } catch {
+    document.getElementById('thinking').classList.remove('show');
+    addBubble('ai', 'Pakwata internet — lost connection.');
     setSt('idle');
   }
 }
 
-// ─────────────────────────────────────────
-//  SPEECH OUT
-// ─────────────────────────────────────────
+// ── SPEECH OUT ──
 function say(text) {
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   const vs = window.speechSynthesis.getVoices();
-  const v = vs.find(x => x.lang.includes('ZA') || x.lang.includes('ZM') || x.lang.includes('KE'))
-          || vs.find(x => x.lang.startsWith('en')) || vs[0];
+  const v = vs.find(x=>x.lang.includes('ZA')||x.lang.includes('ZM')||x.lang.includes('KE'))
+          || vs.find(x=>x.lang.startsWith('en')) || vs[0];
   if (v) u.voice = v;
   u.rate = 0.86;
-  u.onstart = () => setSt('spk');
-  u.onend   = () => setSt('idle');
+  u.onstart = () => setSt('speaking');
+  u.onend   = () => {
+    setSt('idle');
+    // Auto-listen after AI speaks if live mode is on
+    if (autoListen) setTimeout(() => startListening(), 400);
+  };
   u.onerror = () => setSt('idle');
-  setSt('spk');
+  setSt('speaking');
   window.speechSynthesis.speak(u);
 }
 
-// ─────────────────────────────────────────
-//  MIC
-// ─────────────────────────────────────────
-function handleMic() {
-  if (st === 'spk') { window.speechSynthesis.cancel(); setSt('idle'); return; }
-  if (st === 'rec') { if (rec) rec.stop(); setSt('idle'); return; }
-  if (st === 'thk') return;
-  startMic();
+// ── HANDLE MAIN BUTTON ──
+function handleConv() {
+  if (st === 'speaking') {
+    // Interrupt and listen
+    window.speechSynthesis.cancel();
+    autoListen = true;
+    startListening();
+    return;
+  }
+  if (st === 'listening') {
+    if (rec) rec.stop();
+    autoListen = false;
+    setSt('idle');
+    return;
+  }
+  if (st === 'thinking') return;
+
+  // Start live conversation mode
+  autoListen = true;
+  startListening();
 }
 
-function startMic() {
+// ── MIC ──
+function startListening() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { alert('Please use Safari or Chrome.'); return; }
 
@@ -395,140 +592,179 @@ function startMic() {
   rec.interimResults = true;
   rec.continuous = false;
 
-  const bar = document.getElementById('tbar');
-
-  rec.onstart = () => { setSt('rec'); bar.classList.add('on'); bar.textContent = 'Listening...'; };
+  rec.onstart = () => setSt('listening');
 
   rec.onresult = e => {
-    let fin = '', tmp = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
+    let fin='', tmp='';
+    for (let i=e.resultIndex; i<e.results.length; i++) {
       if (e.results[i].isFinal) fin += e.results[i][0].transcript;
       else tmp += e.results[i][0].transcript;
     }
-    bar.textContent = fin || tmp;
-    if (fin) { rec.stop(); bar.classList.remove('on'); addBubble('user', fin); claude(fin); }
+    if (tmp) setStatus('Heard: ' + tmp, 'active');
+    if (fin) {
+      rec.stop();
+      addBubble('user', fin);
+      claude(fin);
+    }
   };
 
   rec.onerror = e => {
-    setSt('idle'); bar.classList.remove('on'); bar.textContent = 'Speak or tap a topic above...';
-    if (e.error === 'not-allowed')
-      alert('Microphone blocked.\n\niPhone: Settings → Safari → Microphone → Allow\nAndroid: Settings → Site Settings → Microphone → Allow\n\nThen reload this page.');
+    autoListen = false; setSt('idle');
+    if (e.error==='not-allowed')
+      alert('Microphone blocked.\n\niPhone: Settings → Safari → Microphone → Allow\n\nThen reload.');
+    else if (e.error !== 'no-speech') setSt('idle');
   };
 
-  rec.onend = () => { if (st === 'rec') setSt('idle'); bar.classList.remove('on'); };
+  rec.onend = () => { if (st==='listening') setSt('idle'); };
   rec.start();
 }
 
-// ─────────────────────────────────────────
-//  CORRECTION FLOW
-// ─────────────────────────────────────────
-function openFix(text) {
-  fixingText = text;
-  document.getElementById('fixCtx').textContent = text.length > 80 ? text.slice(0,80) + '...' : text;
-  document.getElementById('fixIn').value = '';
-  document.getElementById('fixPanel').classList.add('show');
-  document.getElementById('fixIn').focus();
-  document.getElementById('fixPanel').scrollIntoView({ behavior:'smooth' });
+// ── TEACH ──
+function openTeach(ctx='') {
+  window.speechSynthesis.cancel();
+  autoListen = false;
+  document.getElementById('teachIn').value = '';
+  document.getElementById('teachSheetSub').textContent = ctx
+    ? 'Correcting: "' + ctx.slice(0,60) + '"'
+    : 'Teach me any Bemba word, phrase, or correction.';
+  document.getElementById('teachOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('teachIn').focus(), 300);
 }
-function closeFix() { document.getElementById('fixPanel').classList.remove('show'); fixingText = ''; }
+function closeTeach() { document.getElementById('teachOverlay').classList.remove('show'); }
 
-function submitFix() {
-  const correct = document.getElementById('fixIn').value.trim();
-  if (!correct) return;
+function submitTeaching() {
+  const text = document.getElementById('teachIn').value.trim();
+  if (!text) return;
+  learned.unshift({ id:Date.now(), text });
+  save(learned);
+  closeTeach();
+  updateRoad();
+  renderLearnedChips();
 
-  corrections.unshift({ id: Date.now(), wrong: fixingText, correct, up:0, down:0, ts: Date.now() });
-  saveCorrections(corrections);
-  closeFix();
-  renderVotes();
-  updateStage();
-
-  const msg = `✏️ Taught: "${correct}"`;
-  addBubble('user', msg);
-  claude(`The community just corrected me. Instead of "${fixingText.slice(0,60)}", I should say "${correct}". Acknowledge this warmly in Bemba, thank them, and ask one short follow-up question to learn more Bemba.`);
-}
-
-// ─────────────────────────────────────────
-//  VOTING
-// ─────────────────────────────────────────
-function vote(id, dir) {
-  const c = corrections.find(x => x.id === id);
-  if (!c) return;
-  if (dir === 'up') c.up++; else c.down++;
-  saveCorrections(corrections);
-  renderVotes();
+  addBubble('user', '✏️ Teaching: "' + text + '"');
+  claude(
+    `My teacher just taught me: "${text}". React as an excited student who just learned something. Repeat it to confirm. Then ask one follow-up question about pronunciation or how a Zambian would really say it.`,
+    'win'
+  );
 }
 
-function renderVotes() {
-  const wrap = document.getElementById('votesWrap');
-  const list = document.getElementById('votesList');
-  if (corrections.length === 0) { wrap.classList.remove('show'); return; }
-  wrap.classList.add('show');
-  list.innerHTML = corrections.slice(0,6).map(c => `
-    <div class="vote-item">
-      <div class="vote-txt">
-        <strong>${c.correct}</strong>
-        <small>corrects: "${c.wrong.slice(0,45)}${c.wrong.length>45?'...':''}" · 👍${c.up} 👎${c.down}</small>
-      </div>
-      <div class="vbtns">
-        <button class="vbtn" onclick="vote(${c.id},'up')">👍</button>
-        <button class="vbtn" onclick="vote(${c.id},'down')">👎</button>
-      </div>
+// ── NEXT QUESTION ──
+function nextQuestion() {
+  if (st==='thinking'||st==='listening') return;
+  window.speechSynthesis.cancel();
+  const prompts = [
+    "Try greeting someone in Bemba and ask if the pronunciation is right.",
+    "Ask how to say a common daily phrase in Bemba — like 'I am hungry' or 'let's go'.",
+    "Attempt to say something about the weather in Bemba, then ask if it sounds natural.",
+    "Ask how elders are greeted respectfully in Bemba the Zambian way.",
+    "Try to say 'how much does this cost?' in Bemba and ask for correction.",
+    "Ask what people say in Garneton when something good happens.",
+    "Attempt a sentence about food in Bemba — any sentence — and ask the teacher to correct it.",
+    "Ask how to say numbers 1 to 3 in Bemba, and ask to hear the real pronunciation.",
+    "Ask what a typical Zambian says when they meet a friend they haven't seen in a while.",
+    "Try to say goodbye in Bemba in the most natural Zambian way.",
+  ];
+  claude(prompts[Math.floor(Math.random()*prompts.length)]);
+}
+
+// ── LEARNED CHIPS ──
+function renderLearnedChips() {
+  const wrap = document.getElementById('learnedWrap');
+  const scroll = document.getElementById('learnedScroll');
+  const count = document.getElementById('learnedCount');
+  if (learned.length===0) { wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  count.textContent = learned.length;
+  scroll.innerHTML = learned.slice(0,12).map(l => `
+    <div class="learned-chip" onclick="say('${l.text.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">
+      <strong>${l.text.slice(0,20)}${l.text.length>20?'...':''}</strong> 🔊
     </div>
   `).join('');
 }
 
-// ─────────────────────────────────────────
-//  STAGE BADGE
-// ─────────────────────────────────────────
-function updateStage() {
-  const n = corrections.filter(c => c.up >= c.down).length;
-  const s = n < 5 ? 'Baby 🌱' : n < 15 ? 'Growing 🌿' : n < 40 ? 'Learning 🌳' : 'Wise 🦅';
-  document.getElementById('stage').textContent = s;
+// ── ROAD TO FLUENCY ──
+function updateRoad() {
+  const n = learned.length;
+  const maxThreshold = MILESTONES[MILESTONES.length-1].threshold;
+  const pct = Math.min(100, (n / maxThreshold) * 100);
+
+  document.getElementById('roadFill').style.width = pct + '%';
+  document.getElementById('traveller').style.left = pct + '%';
+
+  // Find current milestone
+  let current = 0;
+  for (let i=0; i<MILESTONES.length; i++) {
+    if (n >= MILESTONES[i].threshold) current = i;
+  }
+
+  document.getElementById('traveller').textContent = MILESTONES[current].emoji;
+  document.getElementById('roadLabel').textContent = MILESTONES[current].label;
+
+  // Update milestone dots
+  MILESTONES.forEach((m, i) => {
+    const dot = document.getElementById('m'+i);
+    const lbl = document.getElementById('ml'+i);
+    if (!dot) return;
+    dot.className = 'm-dot';
+    lbl.className = 'm-label';
+    if (n >= m.threshold && i < current) { dot.classList.add('reached'); lbl.classList.add('reached'); }
+    else if (i === current) { dot.classList.add('current'); lbl.classList.add('current'); }
+  });
 }
 
-// ─────────────────────────────────────────
-//  SET APP STATE
-// ─────────────────────────────────────────
+// ── STATUS ──
+function setStatus(text, mode='') {
+  const pill = document.getElementById('statusPill');
+  const txt  = document.getElementById('statusText');
+  pill.className = 'status-pill' + (mode?' '+mode:'');
+  txt.textContent = text;
+  const dot = pill.querySelector('.spill-dot');
+  dot.className = 'spill-dot' + (mode==='active'?' pulse':'');
+}
+
+// ── APP STATE ──
 function setSt(s) {
   st = s;
-  const btn  = document.getElementById('micBtn');
-  const lbl  = document.getElementById('mlbl');
-  const sdot = document.getElementById('sdot');
-  const mic  = document.getElementById('micSvg');
-  const stop = document.getElementById('stopSvg');
-  const spk  = document.getElementById('spkSvg');
+  const btn   = document.getElementById('convBtn');
+  const icon  = document.getElementById('convIcon');
+  const lbl   = document.getElementById('convLabel');
+  const waves = document.getElementById('wavebars');
 
-  btn.className = s === 'rec' ? 'rec' : s === 'spk' ? 'spk' : s === 'thk' ? 'thk' : '';
-  mic.style.display  = s === 'rec' || s === 'spk' ? 'none' : 'block';
-  stop.style.display = s === 'rec' ? 'block' : 'none';
-  spk.style.display  = s === 'spk' ? 'block' : 'none';
+  btn.className = 'conv-btn ' + (s==='listening'?'listening':s==='speaking'?'speaking':s==='thinking'?'thinking':'idle');
+  waves.className = 'wavebars' + (s==='listening'?' show':'');
+  icon.style.display = s==='listening' ? 'none' : 'block';
 
-  const lbls = { idle:'Landa — Speak', rec:'Tap to stop', thk:'Thinking...', spk:'Tap to stop' };
-  lbl.textContent = lbls[s] || 'Landa — Speak';
+  const icons = { idle:'🎙️', listening:'', thinking:'💭', speaking:'🔊' };
+  const labels = { idle:'Start Talking', listening:'Listening — tap to stop', thinking:'Thinking...', speaking:'Speaking — tap to interrupt' };
+  icon.textContent = icons[s]||'🎙️';
+  lbl.textContent = labels[s]||'Start Talking';
 
-  const dc = { idle:'#2d6a4f', rec:'#e63946', thk:'#ffd166', spk:'#2d6a4f' };
-  sdot.style.background = dc[s] || '#2d6a4f';
-  sdot.style.boxShadow  = `0 0 7px ${dc[s]||'#2d6a4f'}`;
+  const statuses = {
+    idle:      ['Ready', ''],
+    listening: ['Listening...', 'active'],
+    thinking:  ['Thinking in Bemba...', 'thinking'],
+    speaking:  ['AI is speaking', 'speaking'],
+  };
+  const [stxt, smode] = statuses[s]||['Ready',''];
+  setStatus(stxt, smode);
 }
 
-// ─────────────────────────────────────────
-//  BOOT
-// ─────────────────────────────────────────
+// ── BOOT ──
 function boot() {
   window.speechSynthesis.getVoices();
   window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-  renderVotes();
-  updateStage();
+  updateRoad();
+  renderLearnedChips();
 
-  const n = corrections.filter(c => c.up >= c.down).length;
-  const greeting = n > 0
-    ? `Mwaiseni! I am AI Marvelous. The community has taught me ${n} thing${n===1?'':'s'} so far — natotela! Ndefwaya ukwafwa shani lelo? How can I help you today?`
-    : `Mwaiseni! Ndi AI Marvelous — I am a Bemba baby still learning. Talk to me, correct me, teach me. Tap a topic or just speak. Nganshi twalandapo?`;
+  const n = learned.length;
+  const opener = n > 0
+    ? `Mwaiseni! Natotela — you have taught me ${n} thing${n===1?'':'s'} already! Let me try: ${learned[0]?.text}. Nati bwino? Did I say that right? Say it back to me the way someone from Garneton would really say it!`
+    : `Mwaiseni! I am AI Marvelous — I want to learn Bemba from you! I think "mwaiseni" means hello — nati bwino? Did I say that right? Can you say it back to me exactly how a Zambian person would say it?`;
 
   setTimeout(() => {
-    addBubble('assistant', greeting);
-    say(greeting);
-  }, 700);
+    addBubble('ai', opener, 'q');
+    say(opener);
+  }, 600);
 }
 
 boot();
