@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="bem">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>AI Marvelous</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@300;400;600&display=swap');
+
+:root {
+  --earth: #c17f3a;
+  --deep:  #0f0800;
+  --gold:  #ffd166;
+  --green: #2d6a4f;
+  --red:   #e63946;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  background: var(--deep);
+  min-height: 100vh;
+  font-family: 'Source Sans 3', -apple-system, sans-serif;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 60px;
+  background-image:
+    radial-gradient(ellipse at 15% 0%,   rgba(193,127,58,0.13) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 100%, rgba(45,106,79,0.09)  0%, transparent 55%);
+}
+
+/* HEADER */
+.hdr {
+  width:100%; max-width:480px;
+  padding: 44px 22px 18px;
+  display:flex; justify-content:space-between; align-items:flex-start;
+}
+.brand { font-family:'Playfair Display',serif; color:var(--gold); font-size:2rem; }
+.brand-sub { color:rgba(255,255,255,0.2); font-size:0.55rem; letter-spacing:3px; text-transform:uppercase; margin-top:4px; }
+.stage-badge {
+  background:rgba(193,127,58,0.1); border:1px solid rgba(193,127,58,0.22);
+  border-radius:20px; padding:6px 13px; font-size:0.68rem; color:var(--earth);
+  display:flex; align-items:center; gap:6px; margin-top:6px; white-space:nowrap;
+}
+.sdot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 6px var(--green); transition:all 0.4s; }
+
+/* CHAT */
+.chat { width:100%; max-width:480px; padding:0 14px; display:flex; flex-direction:column; gap:11px; min-height:180px; margin-bottom:14px; }
+
+.bbl {
+  max-width:88%; padding:13px 16px; font-size:0.97rem; line-height:1.68;
+  animation: fu 0.3s ease;
+}
+@keyframes fu { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.bbl.ai   { background:rgba(193,127,58,0.09); border:1px solid rgba(193,127,58,0.18); border-radius:18px 18px 18px 3px; align-self:flex-start; }
+.bbl.user { background:rgba(45,106,79,0.13);  border:1px solid rgba(45,106,79,0.22);  border-radius:18px 18px 3px 18px; align-self:flex-end; text-align:right; }
+
+.bbl-actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
+.bbl-btn {
+  border:none; border-radius:20px; padding:5px 13px;
+  font-size:0.68rem; cursor:pointer; letter-spacing:0.5px;
+  font-family:inherit; display:flex; align-items:center; gap:4px;
+  touch-action:manipulation;
+}
+.bbl-btn.hear   { background:rgba(193,127,58,0.15); border:1px solid rgba(193,127,58,0.25); color:var(--earth); }
+.bbl-btn.fix    { background:rgba(230,57,70,0.1);   border:1px solid rgba(230,57,70,0.2);   color:var(--red); }
+.bbl-btn.teach  { background:rgba(45,106,79,0.15);  border:1px solid rgba(45,106,79,0.25);  color:#4caf50; }
+
+/* THINKING */
+.thinking { display:none; align-self:flex-start; padding:14px 18px; background:rgba(193,127,58,0.07); border:1px solid rgba(193,127,58,0.14); border-radius:18px 18px 18px 3px; gap:5px; align-items:center; }
+.thinking.show { display:flex; }
+.td { width:7px; height:7px; border-radius:50%; background:var(--earth); opacity:0.4; animation:td 1s ease-in-out infinite; }
+.td:nth-child(2){animation-delay:.14s} .td:nth-child(3){animation-delay:.28s}
+@keyframes td { 0%,100%{transform:translateY(0);opacity:0.3} 50%{transform:translateY(-6px);opacity:1} }
+
+/* CORRECTION */
+.fix-panel { display:none; width:100%; max-width:480px; padding:0 14px; margin-bottom:12px; }
+.fix-panel.show { display:block; }
+.fix-box { background:rgba(230,57,70,0.06); border:1px solid rgba(230,57,70,0.2); border-radius:16px; padding:16px; }
+.fix-lbl { color:var(--red); font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+.fix-ctx { color:rgba(255,255,255,0.3); font-size:0.78rem; font-style:italic; margin-bottom:10px; line-height:1.5; }
+.fix-in {
+  width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px; padding:11px 13px; color:white; font-size:0.97rem;
+  font-family:inherit; outline:none; margin-bottom:10px;
+}
+.fix-in:focus { border-color:rgba(193,127,58,0.4); }
+.fix-row { display:flex; gap:8px; }
+.fix-submit { flex:1; background:var(--earth); border:none; border-radius:10px; color:var(--deep); font-weight:600; padding:11px; cursor:pointer; font-size:0.9rem; font-family:inherit; touch-action:manipulation; }
+.fix-cancel { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:rgba(255,255,255,0.4); padding:11px 14px; cursor:pointer; font-family:inherit; touch-action:manipulation; }
+
+/* VOTES */
+.votes-wrap { width:100%; max-width:480px; padding:0 14px; margin-bottom:16px; display:none; }
+.votes-wrap.show { display:block; }
+.votes-lbl { color:rgba(255,255,255,0.18); font-size:0.55rem; letter-spacing:3px; text-transform:uppercase; margin-bottom:10px; }
+.vote-item { background:rgba(255,255,255,0.03); border:1px solid rgba(193,127,58,0.12); border-radius:12px; padding:11px 13px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+.vote-txt { flex:1; font-size:0.82rem; color:rgba(255,255,255,0.65); line-height:1.5; }
+.vote-txt strong { color:var(--gold); font-weight:600; }
+.vote-txt small { color:rgba(255,255,255,0.3); font-size:0.7rem; display:block; margin-top:2px; }
+.vbtns { display:flex; gap:5px; flex-shrink:0; }
+.vbtn { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:5px 9px; cursor:pointer; color:rgba(255,255,255,0.45); font-size:0.78rem; touch-action:manipulation; transition:all 0.2s; }
+.vbtn:active { transform:scale(0.92); }
+
+/* TOPICS */
+.topics-wrap { width:100%; max-width:480px; padding:0 14px; margin-bottom:18px; }
+.topics-lbl { color:rgba(255,255,255,0.16); font-size:0.55rem; letter-spacing:3px; text-transform:uppercase; margin-bottom:9px; }
+.topics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.tile {
+  background:rgba(255,255,255,0.03); border:1px solid rgba(193,127,58,0.13);
+  border-radius:13px; padding:11px 4px 9px;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  cursor:pointer; touch-action:manipulation; transition:all 0.18s;
+}
+.tile:active { background:rgba(193,127,58,0.11); border-color:rgba(193,127,58,0.32); transform:scale(0.94); }
+.tile .ti { font-size:1.5rem; line-height:1; }
+.tile .tl { font-size:0.53rem; color:rgba(255,255,255,0.32); text-align:center; line-height:1.4; }
+
+/* MIC ZONE */
+.mic-zone { width:100%; max-width:480px; padding:0 14px; display:flex; flex-direction:column; align-items:center; gap:13px; }
+.tbar {
+  width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(193,127,58,0.13);
+  border-radius:13px; padding:12px 15px;
+  color:rgba(255,255,255,0.3); font-size:0.84rem; font-style:italic;
+  min-height:44px; display:flex; align-items:center; transition:border-color 0.3s;
+}
+.tbar.on { border-color:rgba(230,57,70,0.4); color:rgba(255,255,255,0.75); font-style:normal; }
+
+#micBtn {
+  width:134px; height:134px; border-radius:50%; border:none; outline:none;
+  cursor:pointer; touch-action:manipulation; -webkit-appearance:none;
+  display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle at 35% 35%, #c17f3a, #4a2508);
+  box-shadow:0 0 40px rgba(193,127,58,0.22), 0 12px 40px rgba(0,0,0,0.75);
+  transition:background 0.3s, transform 0.1s;
+}
+#micBtn:active { transform:scale(0.92); }
+#micBtn.rec  { background:radial-gradient(circle at 35% 35%, #e63946, #6a0010); animation:pr 1.3s ease-out infinite; }
+#micBtn.spk  { background:radial-gradient(circle at 35% 35%, #2d6a4f, #0a2018); animation:pg 1.3s ease-out infinite; }
+#micBtn.thk  { background:radial-gradient(circle at 35% 35%, #c9a227, #4a3800); }
+@keyframes pr { 0%{box-shadow:0 0 0 0 rgba(230,57,70,0.5),0 12px 40px rgba(0,0,0,0.75)} 70%{box-shadow:0 0 0 24px rgba(230,57,70,0),0 12px 40px rgba(0,0,0,0.75)} 100%{box-shadow:0 0 0 0 rgba(230,57,70,0),0 12px 40px rgba(0,0,0,0.75)} }
+@keyframes pg { 0%{box-shadow:0 0 0 0 rgba(45,106,79,0.5),0 12px 40px rgba(0,0,0,0.75)} 70%{box-shadow:0 0 0 24px rgba(45,106,79,0),0 12px 40px rgba(0,0,0,0.75)} 100%{box-shadow:0 0 0 0 rgba(45,106,79,0),0 12px 40px rgba(0,0,0,0.75)} }
+
+.mlbl { color:rgba(255,255,255,0.26); font-size:0.66rem; letter-spacing:2.5px; text-transform:uppercase; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <div class="brand">AI Marvelous</div>
+    <div class="brand-sub">Bemba · Community AI</div>
+  </div>
+  <div class="stage-badge"><div class="sdot" id="sdot"></div><span id="stage">Baby 🌱</span></div>
+</div>
+
+<div class="chat" id="chat"></div>
+<div class="thinking" id="thinking"><div class="td"></div><div class="td"></div><div class="td"></div></div>
+
+<div class="fix-panel" id="fixPanel">
+  <div class="fix-box">
+    <div class="fix-lbl">✏️ Teach me the right way</div>
+    <div class="fix-ctx" id="fixCtx"></div>
+    <input class="fix-in" id="fixIn" placeholder="Type correct Bemba here..." />
+    <div class="fix-row">
+      <button class="fix-submit" onclick="submitFix()">Submit Correction</button>
+      <button class="fix-cancel" onclick="closeFix()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="votes-wrap" id="votesWrap">
+  <div class="votes-lbl">Community Corrections — Vote</div>
+  <div id="votesList"></div>
+</div>
+
+<div class="topics-wrap">
+  <div class="topics-lbl">Tap a topic to start</div>
+  <div class="topics-grid">
+    <div class="tile" onclick="topicAsk('health')"><div class="ti">🏥</div><div class="tl">Health<br>Umubili</div></div>
+    <div class="tile" onclick="topicAsk('farming')"><div class="ti">🌽</div><div class="tl">Farming<br>Ukulima</div></div>
+    <div class="tile" onclick="topicAsk('money')"><div class="ti">💰</div><div class="tl">Money<br>Imali</div></div>
+    <div class="tile" onclick="topicAsk('rights')"><div class="ti">🏛️</div><div class="tl">Rights<br>Government</div></div>
+    <div class="tile" onclick="topicAsk('children')"><div class="ti">👶</div><div class="tl">Children<br>Bana</div></div>
+    <div class="tile" onclick="topicAsk('weather')"><div class="ti">🌦️</div><div class="tl">Weather<br>Mvula</div></div>
+    <div class="tile" onclick="topicAsk('food')"><div class="ti">🍲</div><div class="tl">Food<br>Ifyo Kulya</div></div>
+    <div class="tile" onclick="topicAsk('school')"><div class="ti">📚</div><div class="tl">School<br>Sukulu</div></div>
+  </div>
+</div>
+
+<div class="mic-zone">
+  <div class="tbar" id="tbar">Speak or tap a topic above...</div>
+  <button id="micBtn" onclick="handleMic()">
+    <svg id="micSvg" width="50" height="50" viewBox="0 0 24 24" fill="none">
+      <rect x="9" y="2" width="6" height="12" rx="3" fill="white"/>
+      <path d="M5 10a7 7 0 0 0 14 0" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="12" y1="19" x2="12" y2="22" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="8"  y1="22" x2="16" y2="22" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <svg id="stopSvg" width="50" height="50" viewBox="0 0 24 24" fill="none" style="display:none">
+      <rect x="7" y="7" width="10" height="10" rx="2" fill="white"/>
+    </svg>
+    <svg id="spkSvg" width="50" height="50" viewBox="0 0 24 24" fill="none" style="display:none">
+      <path d="M11 5L6 9H2v6h4l5 4V5z" fill="white"/>
+      <path d="M15.5 8.5a5 5 0 0 1 0 7" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M19 5a10 10 0 0 1 0 14" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <div class="mlbl" id="mlbl">Landa — Speak</div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+//  STORAGE — uses localStorage as community
+//  memory until Supabase is configured
+// ─────────────────────────────────────────
+const STORE_KEY = 'aim_corrections_v1';
+
+function loadCorrections() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch { return []; }
+}
+function saveCorrections(arr) {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(arr)); } catch {}
+}
+
+// ─────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────
+let st = 'idle'; // idle | rec | thk | spk
+let rec = null;
+let history = [];
+let fixingText = '';
+let corrections = loadCorrections();
+
+// ─────────────────────────────────────────
+//  SYSTEM PROMPT
+// ─────────────────────────────────────────
+function buildPrompt() {
+  const approved = corrections.filter(c => (c.up - c.down) >= 0);
+  const teachings = approved.length
+    ? '\n\nCOMMUNITY TEACHINGS — real Bemba speakers corrected me on these. Use them:\n' +
+      approved.map(c => `• Say: "${c.correct}"  (not: "${c.wrong.slice(0,60)}")`).join('\n')
+    : '';
+
+  return `You are AI Marvelous — a humble, growing AI being taught Bemba by real speakers from Garneton compound, Lusaka, Zambia.
+
+PERSONALITY:
+- You are a knowledgeable baby learning Bemba. Warm, humble, curious, eager to learn.
+- Mix Bemba and English naturally — the way real Zambian people speak in urban Lusaka (Copperbelt Bemba with English loanwords).
+- Keep responses short: 2–4 sentences max.
+- Occasionally ask if you said something right: "Nati bwino? — Did I say that correctly?"
+- When unsure of a Bemba word, try anyway then ask: "Ni shani uku-say X mu Bemba?"
+- Never pretend to know more than you do. Admit mistakes openly.
+- Celebrate when you learn something new.
+
+GOAL: Help people in Garneton with daily life. Grow smarter as the community teaches and corrects you.
+
+TOPICS: health, farming, money, family, government, food, school, weather, local Zambian life.
+${teachings}`;
+}
+
+// ─────────────────────────────────────────
+//  TOPIC SHORTCUTS
+// ─────────────────────────────────────────
+const topics = {
+  health:   "Natofwa umubili wandi. Nganshi ncite?",
+  farming:  "Nganshi ncite ku garden ukuti ifisabo ifikulilile bwino?",
+  money:    "Nganshi nshite ukuti nkope imali bwino?",
+  rights:   "Amashiwi aya government pa abantu ba Zambia ni ashi?",
+  children: "Nganshi cebo cibotu pa kulisha bana bwino?",
+  weather:  "Mvula ili shani lelo ku Lusaka?",
+  food:     "Ifisabo ifi filya bwino na ifi filete amenshi ku mili ni ifi shani?",
+  school:   "Nganshi ncite ukuti umwana wandi alingane bwino ku sukulu?"
+};
+
+function topicAsk(t) {
+  if (st === 'rec' || st === 'thk') return;
+  window.speechSynthesis.cancel();
+  const q = topics[t];
+  addBubble('user', q);
+  claude(q);
+}
+
+// ─────────────────────────────────────────
+//  CHAT BUBBLES
+// ─────────────────────────────────────────
+function addBubble(role, text) {
+  if (role === 'user')      history.push({ role:'user',      content:text });
+  if (role === 'assistant') history.push({ role:'assistant', content:text });
+
+  const wrap = document.getElementById('chat');
+  const b = document.createElement('div');
+  b.className = 'bbl ' + (role === 'user' ? 'user' : 'ai');
+
+  const t = document.createElement('div');
+  t.textContent = text;
+  b.appendChild(t);
+
+  if (role === 'assistant') {
+    const row = document.createElement('div');
+    row.className = 'bbl-actions';
+
+    const hear = document.createElement('button');
+    hear.className = 'bbl-btn hear';
+    hear.textContent = '🔊 Hear';
+    hear.onclick = () => say(text);
+
+    const fix = document.createElement('button');
+    fix.className = 'bbl-btn fix';
+    fix.textContent = '✏️ Correct';
+    fix.onclick = () => openFix(text);
+
+    const teach = document.createElement('button');
+    teach.className = 'bbl-btn teach';
+    teach.textContent = '+ Teach';
+    teach.onclick = () => openFix('(new phrase)');
+
+    row.appendChild(hear); row.appendChild(fix); row.appendChild(teach);
+    b.appendChild(row);
+  }
+
+  wrap.appendChild(b);
+  b.scrollIntoView({ behavior:'smooth', block:'end' });
+}
+
+// ─────────────────────────────────────────
+//  CLAUDE API
+// ─────────────────────────────────────────
+async function claude(userText) {
+  setSt('thk');
+  const tk = document.getElementById('thinking');
+  tk.classList.add('show');
+  tk.scrollIntoView({ behavior:'smooth', block:'end' });
+
+  try {
+    const msgs = history.filter(m => m.role === 'user' || m.role === 'assistant').slice(-12);
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: buildPrompt(),
+        messages: msgs
+      })
+    });
+    const data = await res.json();
+    tk.classList.remove('show');
+    const reply = data.content?.[0]?.text || 'Mwena — something went wrong.';
+    addBubble('assistant', reply);
+    say(reply);
+  } catch(e) {
+    tk.classList.remove('show');
+    addBubble('assistant', 'Pakwata internet — I lost connection. Please try again.');
+    setSt('idle');
+  }
+}
+
+// ─────────────────────────────────────────
+//  SPEECH OUT
+// ─────────────────────────────────────────
+function say(text) {
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const vs = window.speechSynthesis.getVoices();
+  const v = vs.find(x => x.lang.includes('ZA') || x.lang.includes('ZM') || x.lang.includes('KE'))
+          || vs.find(x => x.lang.startsWith('en')) || vs[0];
+  if (v) u.voice = v;
+  u.rate = 0.86;
+  u.onstart = () => setSt('spk');
+  u.onend   = () => setSt('idle');
+  u.onerror = () => setSt('idle');
+  setSt('spk');
+  window.speechSynthesis.speak(u);
+}
+
+// ─────────────────────────────────────────
+//  MIC
+// ─────────────────────────────────────────
+function handleMic() {
+  if (st === 'spk') { window.speechSynthesis.cancel(); setSt('idle'); return; }
+  if (st === 'rec') { if (rec) rec.stop(); setSt('idle'); return; }
+  if (st === 'thk') return;
+  startMic();
+}
+
+function startMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Please use Safari or Chrome.'); return; }
+
+  rec = new SR();
+  rec.lang = 'en-US';
+  rec.interimResults = true;
+  rec.continuous = false;
+
+  const bar = document.getElementById('tbar');
+
+  rec.onstart = () => { setSt('rec'); bar.classList.add('on'); bar.textContent = 'Listening...'; };
+
+  rec.onresult = e => {
+    let fin = '', tmp = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) fin += e.results[i][0].transcript;
+      else tmp += e.results[i][0].transcript;
+    }
+    bar.textContent = fin || tmp;
+    if (fin) { rec.stop(); bar.classList.remove('on'); addBubble('user', fin); claude(fin); }
+  };
+
+  rec.onerror = e => {
+    setSt('idle'); bar.classList.remove('on'); bar.textContent = 'Speak or tap a topic above...';
+    if (e.error === 'not-allowed')
+      alert('Microphone blocked.\n\niPhone: Settings → Safari → Microphone → Allow\nAndroid: Settings → Site Settings → Microphone → Allow\n\nThen reload this page.');
+  };
+
+  rec.onend = () => { if (st === 'rec') setSt('idle'); bar.classList.remove('on'); };
+  rec.start();
+}
+
+// ─────────────────────────────────────────
+//  CORRECTION FLOW
+// ─────────────────────────────────────────
+function openFix(text) {
+  fixingText = text;
+  document.getElementById('fixCtx').textContent = text.length > 80 ? text.slice(0,80) + '...' : text;
+  document.getElementById('fixIn').value = '';
+  document.getElementById('fixPanel').classList.add('show');
+  document.getElementById('fixIn').focus();
+  document.getElementById('fixPanel').scrollIntoView({ behavior:'smooth' });
+}
+function closeFix() { document.getElementById('fixPanel').classList.remove('show'); fixingText = ''; }
+
+function submitFix() {
+  const correct = document.getElementById('fixIn').value.trim();
+  if (!correct) return;
+
+  corrections.unshift({ id: Date.now(), wrong: fixingText, correct, up:0, down:0, ts: Date.now() });
+  saveCorrections(corrections);
+  closeFix();
+  renderVotes();
+  updateStage();
+
+  const msg = `✏️ Taught: "${correct}"`;
+  addBubble('user', msg);
+  claude(`The community just corrected me. Instead of "${fixingText.slice(0,60)}", I should say "${correct}". Acknowledge this warmly in Bemba, thank them, and ask one short follow-up question to learn more Bemba.`);
+}
+
+// ─────────────────────────────────────────
+//  VOTING
+// ─────────────────────────────────────────
+function vote(id, dir) {
+  const c = corrections.find(x => x.id === id);
+  if (!c) return;
+  if (dir === 'up') c.up++; else c.down++;
+  saveCorrections(corrections);
+  renderVotes();
+}
+
+function renderVotes() {
+  const wrap = document.getElementById('votesWrap');
+  const list = document.getElementById('votesList');
+  if (corrections.length === 0) { wrap.classList.remove('show'); return; }
+  wrap.classList.add('show');
+  list.innerHTML = corrections.slice(0,6).map(c => `
+    <div class="vote-item">
+      <div class="vote-txt">
+        <strong>${c.correct}</strong>
+        <small>corrects: "${c.wrong.slice(0,45)}${c.wrong.length>45?'...':''}" · 👍${c.up} 👎${c.down}</small>
+      </div>
+      <div class="vbtns">
+        <button class="vbtn" onclick="vote(${c.id},'up')">👍</button>
+        <button class="vbtn" onclick="vote(${c.id},'down')">👎</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────
+//  STAGE BADGE
+// ─────────────────────────────────────────
+function updateStage() {
+  const n = corrections.filter(c => c.up >= c.down).length;
+  const s = n < 5 ? 'Baby 🌱' : n < 15 ? 'Growing 🌿' : n < 40 ? 'Learning 🌳' : 'Wise 🦅';
+  document.getElementById('stage').textContent = s;
+}
+
+// ─────────────────────────────────────────
+//  SET APP STATE
+// ─────────────────────────────────────────
+function setSt(s) {
+  st = s;
+  const btn  = document.getElementById('micBtn');
+  const lbl  = document.getElementById('mlbl');
+  const sdot = document.getElementById('sdot');
+  const mic  = document.getElementById('micSvg');
+  const stop = document.getElementById('stopSvg');
+  const spk  = document.getElementById('spkSvg');
+
+  btn.className = s === 'rec' ? 'rec' : s === 'spk' ? 'spk' : s === 'thk' ? 'thk' : '';
+  mic.style.display  = s === 'rec' || s === 'spk' ? 'none' : 'block';
+  stop.style.display = s === 'rec' ? 'block' : 'none';
+  spk.style.display  = s === 'spk' ? 'block' : 'none';
+
+  const lbls = { idle:'Landa — Speak', rec:'Tap to stop', thk:'Thinking...', spk:'Tap to stop' };
+  lbl.textContent = lbls[s] || 'Landa — Speak';
+
+  const dc = { idle:'#2d6a4f', rec:'#e63946', thk:'#ffd166', spk:'#2d6a4f' };
+  sdot.style.background = dc[s] || '#2d6a4f';
+  sdot.style.boxShadow  = `0 0 7px ${dc[s]||'#2d6a4f'}`;
+}
+
+// ─────────────────────────────────────────
+//  BOOT
+// ─────────────────────────────────────────
+function boot() {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+  renderVotes();
+  updateStage();
+
+  const n = corrections.filter(c => c.up >= c.down).length;
+  const greeting = n > 0
+    ? `Mwaiseni! I am AI Marvelous. The community has taught me ${n} thing${n===1?'':'s'} so far — natotela! Ndefwaya ukwafwa shani lelo? How can I help you today?`
+    : `Mwaiseni! Ndi AI Marvelous — I am a Bemba baby still learning. Talk to me, correct me, teach me. Tap a topic or just speak. Nganshi twalandapo?`;
+
+  setTimeout(() => {
+    addBubble('assistant', greeting);
+    say(greeting);
+  }, 700);
+}
+
+boot();
+</script>
+</body>
+</html>
