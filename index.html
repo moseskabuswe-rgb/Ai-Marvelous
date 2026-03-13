@@ -325,36 +325,60 @@ async function claude(userText, tag) {
   document.getElementById('thinking').classList.add('on');
   document.getElementById('talkBtn').className = 'talk-btn visible busy';
 
-  try {
-    const res  = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model:      'claude-sonnet-4-20250514',
-        max_tokens: 120,   // force brevity — short sentences only
-        system:     buildPrompt(),
-        messages:   history.slice(-16)
-      })
-    });
-    const data = await res.json();
-    document.getElementById('thinking').classList.remove('on');
-    const reply = data.content?.[0]?.text || 'Hm — something went wrong Ba Teacher. Try again!';
-    bubble('ai', reply, tag || 'q');
+  // Retry up to 3 times with exponential backoff
+  let lastErr = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type':      'application/json',
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model:      'claude-sonnet-4-20250514',
+          max_tokens: 120,
+          system:     buildPrompt(),
+          messages:   history.slice(-16)
+        })
+      });
 
-    // Store reply and speak it
-    pendingReply = reply;
-    speak(reply);   // works if still in gesture chain; falls back to pending if not
+      // Log non-200 for debugging
+      if (!res.ok) {
+        const errText = await res.text();
+        console.warn(`API attempt ${attempt} failed: ${res.status}`, errText);
+        lastErr = `HTTP ${res.status}`;
+        if (res.status === 401 || res.status === 403) break; // no point retrying auth errors
+        await new Promise(r => setTimeout(r, attempt * 800));
+        continue;
+      }
 
-  } catch (err) {
-    document.getElementById('thinking').classList.remove('on');
-    const fb = 'Ba Teacher — I lost the connection. Can you try again?';
-    bubble('ai', fb, 'q');
-    pendingReply = fb;
-    speak(fb);
-  } finally {
-    setPhase('idle');
-    document.getElementById('talkBtn').className = 'talk-btn visible ready';
+      const data = await res.json();
+      document.getElementById('thinking').classList.remove('on');
+      const reply = data.content?.[0]?.text || 'Hm — something went wrong Ba Teacher. Try again!';
+      bubble('ai', reply, tag || 'q');
+      pendingReply = reply;
+      speak(reply);
+      setPhase('idle');
+      document.getElementById('talkBtn').className = 'talk-btn visible ready';
+      return; // success — exit
+
+    } catch (err) {
+      console.warn(`Attempt ${attempt} threw:`, err.message);
+      lastErr = err.message;
+      if (attempt < 3) await new Promise(r => setTimeout(r, attempt * 800));
+    }
   }
+
+  // All attempts failed
+  document.getElementById('thinking').classList.remove('on');
+  const fb = `Ba Teacher — I cannot reach the server (${lastErr}). Check your internet and try again!`;
+  bubble('ai', fb, 'q');
+  pendingReply = null;
+  speak(fb);
+  setPhase('idle');
+  document.getElementById('talkBtn').className = 'talk-btn visible ready';
 }
 
 // ─────────────────────────────────────────────────────────────
